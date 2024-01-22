@@ -25,4 +25,3 @@ while running:
 
     # Control the frame rate
     dt = pygame.time.Clock().tick(60)
-
