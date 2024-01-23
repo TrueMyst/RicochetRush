@@ -34,6 +34,9 @@ def game(screen):
                     game(screen)
                 elif event.key == pygame.K_q:
                     menu(screen)
+                elif event.key == pygame.K_e:
+                    pygame.quit()
+                    sys.exit()
 
         font_surf = oswald.render(f"{score}", True, GruvboxSoft().dark2)
         font_rect = font_surf.get_rect()
