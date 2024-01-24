@@ -15,8 +15,7 @@ def game(screen):
     oswald = pygame.font.Font("../assets/Oswald-Bold.ttf", 230)
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
 
-    score = 1
-    speed = 1
+    score = 0
     bouncy = []
     star_xy = helper.generate_stars_cords(WIDTH, HEIGHT)
 
@@ -45,7 +44,7 @@ def game(screen):
         screen.blit(font_surf, font_rect)
 
         # Progress Bar
-        progressbar = ProgressBar(13, score, 15, GruvboxSoft().dark2, 25, screen)
+        progressbar = ProgressBar(width=WIDTH, height=13, score=score, color=GruvboxSoft().dark2, radius=15, screen=screen)
         progressbar.draw()
 
         # Track Mouse
@@ -55,32 +54,31 @@ def game(screen):
         # Check collisions & generates stars
         if helper.check_collisions(mouse_position, star_xy, STAR_RADIUS):
             score += 1
+            print(progressbar.progress)
             star_xy = helper.generate_stars_cords(WIDTH, HEIGHT)
-
             if score != 0 and score % 3 == 0:
-                speed += 1
-
                 x, y = helper.generate_bouncy_cords(WIDTH, HEIGHT)
 
                 ve = random.choice([True, False])
-                vx, vy = speed + 2, speed + 1
+                vx, vy = 5, 3
 
-                # If ve negative change flip the velocity
+                # If -ve/+ve change flip the velocity
                 vx = vx if ve else -vx
                 vy = vy if ve else -vy
 
                 color = GruvboxSoft().choose()
 
                 bouncy.append(
-                    BouncingBall(
-                        x, y, vx, vy, BOUNCE_RADIUS, color, WIDTH, HEIGHT, screen
+                    BouncingBall(                        
+                            x, y, vx, vy, BOUNCE_RADIUS, color, WIDTH, HEIGHT, screen
                     )
                 )
-
+                
         # For each bouncy ball
         # Update their position
         # draw them in their respective class:)
         for ball in bouncy:
+
             ball.update_position()
             ball.draw()
 
@@ -99,14 +97,22 @@ def menu(screen):
     pygame.display.set_caption("⛹️  RicochetRush")
     clock = pygame.time.Clock()
 
-    oswald = pygame.font.Font("../assets/Oswald-Bold.ttf", 85)
-    oswald_45 = pygame.font.Font("../assets/Oswald-Bold.ttf", 45)
+    oswald = pygame.font.Font("../assets/Oswald-Bold.ttf", 90)
+    oswald_45 = pygame.font.Font("../assets/Oswald-Bold.ttf", 40)
+    oswald_35 = pygame.font.Font("../assets/Oswald-Medium.ttf", 35)
 
     logo = oswald.render("RicochetRush", True, GruvboxBright().blue)
     logo_RECT = logo.get_rect()
 
     caption = oswald_45.render("PRESS SPACE TO START!", True, GruvboxBright().light2)
     caption_RECT = caption.get_rect()
+
+    htp = oswald_35.render("How to Play?", True, GruvboxSoft().cyan)
+    htp_RECT = htp.get_rect()
+
+    credit = oswald_35.render("Credits", True, GruvboxSoft().blue)
+    credit_RECT = credit.get_rect()
+
 
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
     bouncy = []
@@ -147,12 +153,16 @@ def menu(screen):
         for ball in bouncy:
             ball.update_position()
             ball.draw()
-
-        logo_RECT.center = int(WIDTH / 2), 200 + int(oscillation)
-        caption_RECT.center = int(WIDTH / 2), 50 + int(HEIGHT / 2)
+        
+        logo_RECT.center = int(WIDTH / 2), -100 + int(HEIGHT / 2) + int(oscillation)
+        caption_RECT.center = int(WIDTH / 2), int(HEIGHT / 2)
+        htp_RECT.center = int(WIDTH / 2), 105 + int(HEIGHT / 2)
+        credit_RECT.center = int(WIDTH / 2), 150 + int(HEIGHT / 2)
 
         screen.blit(logo, logo_RECT)
         screen.blit(caption, caption_RECT) if helper.blink(475, ticks) else False
+        screen.blit(htp, htp_RECT)
+        screen.blit(credit, credit_RECT)
 
         pygame.display.flip()
         clock.tick(60)
