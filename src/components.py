@@ -1,5 +1,5 @@
 import pygame
-import colors
+
 
 class BouncingBall:
     def __init__(self, x, y, vx, vy, radius, color, width, height, screen):
@@ -17,8 +17,8 @@ class BouncingBall:
         self.screen = screen
 
     def speed_up(self):
-        self.vx += 1
-        self.vy += 1
+        self.vx += 1 if self.vx > 0 else -1
+        self.vy += 1 if self.vy > 0 else -1
 
     def update_position(self):
         self.x += self.vx
@@ -50,13 +50,13 @@ class ProgressBar:
 
         self.progress = 16 * self.score
         self.progressbar = pygame.Rect((25, 25), (self.progress, self.height))
-        self.progressbar2 = pygame.Rect((25, 25), (16*50, self.height))
+        self.progressbar2 = pygame.Rect((25, 25), (16 * 50, self.height))
         self.progressbar.centerx = 450
         self.progressbar2.centerx = 450
 
         self.screen = screen
 
-    def draw(self): 
+    def draw(self):
         pygame.draw.rect(
             self.screen, self.color, self.progressbar, border_radius=self.radius
         )
