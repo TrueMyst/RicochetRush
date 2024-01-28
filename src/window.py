@@ -19,14 +19,13 @@ def game(screen):
 
     score = 0
     bouncy = []
+    vx = vy = 3
     game_active = True
 
     star_xy = helper.generate_stars_cords(WIDTH, HEIGHT)
 
     # Main game loop
     while True:
-        screen.fill(GruvboxSoft().dark1)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -53,6 +52,8 @@ def game(screen):
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game(screen)
+
+        screen.fill(GruvboxSoft().dark1)
 
         if game_active:
             # Write Score at the center of the screen
@@ -84,29 +85,40 @@ def game(screen):
 
                 if score != 0 and score % 3 == 0:
                     x, y = helper.generate_bouncy_cords(WIDTH, HEIGHT)
-
-                    vx = vy = 5
-
-                    ve = random.choice([True, False])
-
-                    # Rnadomly choose the direction
-                    vx = vx if ve else -vx
-                    vy = vy if ve else -vy
-
                     color = GruvboxSoft().choose()
 
                     bouncy.append(
                         BouncingBall(
-                            x, y, vx, vy, BOUNCE_RADIUS, color, WIDTH, HEIGHT, screen
+                            x,
+                            y,
+                            vx,
+                            vy,
+                            BOUNCE_RADIUS,
+                            color,
+                            WIDTH,
+                            HEIGHT,
+                            screen,
                         )
                     )
+
+                    # For each ball in bouncy check their velocity using ball.vx/vy
+                    # If ball.vx is negative then we add negative velocity
+                    # If it is positive we add positive velocity
+
+                if score != 0 and score % 10 == 0:
+                    vx += 1
+                    vy += 1
+
+                    for i, ball in enumerate(bouncy):
+                        ball.vx = vx if ball.vx > 0 else -vx
+                        ball.vy = vy if ball.vy > 0 else -vy
+
+                        print(f"BALL #{i}: {ball.vx} {ball.vy}")
 
             # For each bouncy ball, update their position and draw them in the screen
             for ball in bouncy:
                 ball.update_position()
                 ball.draw()
-
-                print(ball.vx, ball.vy)
 
                 if helper.check_collisions(mouse_xy, ball.position(), BOUNCE_RADIUS):
                     game_active = False
@@ -115,8 +127,6 @@ def game(screen):
             pygame.draw.circle(screen, GruvboxBright().yellow, star_xy, STAR_RADIUS)
 
         else:
-            screen.fill(GruvboxSoft().dark1)
-
             ticks = pygame.time.get_ticks()
             over = oswald50.render(
                 f"Game Over! Your Score: {score}!", True, GruvboxSoft().yellow
@@ -186,7 +196,6 @@ def menu(screen):
                 game(screen)
 
         screen.fill(GruvboxBright().dark1)
-
         ticks = pygame.time.get_ticks()
         oscillation = 15 * math.sin(ticks / 1000 * 2 * math.pi)
 
