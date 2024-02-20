@@ -3,7 +3,6 @@ import math
 import pygame
 import random
 import helper
-
 from constant import *
 from components import BouncingBall, ProgressBar
 from colors import GruvboxBright, GruvboxSoft
@@ -18,6 +17,8 @@ def game(screen):
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
 
     score = 0
+    life_count = 3
+    deduct_life = False
     bouncy = []
     vx = vy = 3
     game_active = True
@@ -56,6 +57,8 @@ def game(screen):
         screen.fill(GruvboxSoft().dark1)
 
         if game_active:
+            ticks = pygame.time.get_ticks()
+
             # Write Score at the center of the screen
             scored = oswald.render(f"{score}", True, GruvboxSoft().dark2)
             scored_RECT = scored.get_rect()
@@ -73,6 +76,11 @@ def game(screen):
                 screen=screen,
             )
             progressbar.draw()
+
+            # Lives
+            for i in range(life_count):
+                lives_rect = pygame.Rect(50 * i, HEIGHT - 50, 30, 30)
+                pygame.draw.rect(screen, GruvboxSoft().red, lives_rect)
 
             # Track Mouse
             mouse_xy = pygame.mouse.get_pos()
@@ -101,19 +109,16 @@ def game(screen):
                         )
                     )
 
-                    # For each ball in bouncy check their velocity using ball.vx/vy
-                    # If ball.vx is negative then we add negative velocity
-                    # If it is positive we add positive velocity
-
                 if score != 0 and score % 10 == 0:
                     vx += 1
                     vy += 1
 
-                    for i, ball in enumerate(bouncy):
+                    # For each ball in bouncy check their velocity using ball.vx/vy
+                    # If ball.vx is negative then we add negative velocity
+                    # If it is positive we add positive velocity
+                    for ball in bouncy:
                         ball.vx = vx if ball.vx > 0 else -vx
                         ball.vy = vy if ball.vy > 0 else -vy
-
-                        print(f"BALL #{i}: {ball.vx} {ball.vy}")
 
             # For each bouncy ball, update their position and draw them in the screen
             for ball in bouncy:
@@ -121,7 +126,9 @@ def game(screen):
                 ball.draw()
 
                 if helper.check_collisions(mouse_xy, ball.position(), BOUNCE_RADIUS):
-                    game_active = False
+                    life_count -= 1 if deduct_life else 0
+                    deduct_life = True
+                    game_active = False if life_count <= 0 else True
 
             # Draw the star
             pygame.draw.circle(screen, GruvboxBright().yellow, star_xy, STAR_RADIUS)
@@ -148,26 +155,19 @@ def menu(screen):
     pygame.display.set_caption("⛹️  RicochetRush")
     clock = pygame.time.Clock()
 
-    oswald = pygame.font.Font("../assets/Oswald-Bold.ttf", 90)
-    oswald_45 = pygame.font.Font("../assets/Oswald-Bold.ttf", 40)
-    oswald_35 = pygame.font.Font("../assets/Oswald-Bold.ttf", 35)
+    oswald = helper.load_font("Bold", 90)
+    oswald_40 = helper.load_font("Bold", 40)
 
     logo = oswald.render("RicochetRush", True, GruvboxBright().blue)
     logo_RECT = logo.get_rect()
 
-    caption = oswald_45.render("PRESS SPACE TO START!", True, GruvboxBright().light2)
+    caption = oswald_40.render("PRESS SPACE TO START!", True, GruvboxBright().light2)
     caption_RECT = caption.get_rect()
-
-    htp = oswald_35.render("HOW TO PLAY?", True, GruvboxSoft().yellow)
-    htp_RECT = htp.get_rect()
-
-    credit = oswald_35.render("CREDITS", True, GruvboxSoft().green)
-    credit_RECT = credit.get_rect()
 
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
     bouncy = []
 
-    for _ in range(50):
+    for _ in range(65):
         x, y = random.randint(10, WIDTH - 10), random.randint(10, HEIGHT - 10)
         bright, soft = GruvboxBright().choose(), GruvboxSoft().choose()
         color = random.choice([bright, soft])
@@ -203,15 +203,11 @@ def menu(screen):
             ball.update_position()
             ball.draw()
 
-        logo_RECT.center = int(WIDTH / 2), -100 + int(HEIGHT / 2) + int(oscillation)
-        caption_RECT.center = int(WIDTH / 2), int(HEIGHT / 2)
-        htp_RECT.center = int(WIDTH / 2), 105 + int(HEIGHT / 2)
-        credit_RECT.center = int(WIDTH / 2), 150 + int(HEIGHT / 2)
+        logo_RECT.center = int(WIDTH / 2), -50 + int(HEIGHT / 2) + int(oscillation)
+        caption_RECT.center = int(WIDTH / 2), 50 + int(HEIGHT / 2)
 
         screen.blit(logo, logo_RECT)
-        screen.blit(caption, caption_RECT) if helper.blink(475, ticks) else False
-        screen.blit(htp, htp_RECT)
-        screen.blit(credit, credit_RECT)
+        screen.blit(caption, caption_RECT) if helper.blink(375, ticks) else False
 
         pygame.display.flip()
         clock.tick(60)

@@ -29,6 +29,15 @@ def generate_bouncy_cords(width, height):
     return x, y
 
 
+def check_time_elapsed(start_time, time_limit):
+    current_time = pygame.time.get_ticks()
+    return current_time - start_time >= time_limit
+
+
 def blink(blink_speed, current_time):
     visible = (current_time // blink_speed) % 2 == 0
     return visible
+
+
+def load_font(weight: str, size: int):
+    return pygame.font.Font(f"../assets/Oswald-{weight}.ttf", size)
