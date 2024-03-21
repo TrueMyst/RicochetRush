@@ -16,12 +16,13 @@ def game(screen):
 
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
 
-    score = 0
-    life_count = 3
-    deduct_life = False
     bouncy = []
+
+    score = 0
     vx = vy = 3
+    life_count = 3
     game_active = True
+    deduct_life = False
 
     star_xy = helper.generate_stars_cords(WIDTH, HEIGHT)
 
@@ -79,7 +80,7 @@ def game(screen):
 
             # Lives
             for i in range(life_count):
-                lives_rect = pygame.Rect(50 * i, HEIGHT - 50, 30, 30)
+                lives_rect = pygame.Rect(20 + 50 * i, HEIGHT - 50, 30, 30)
                 pygame.draw.rect(screen, GruvboxSoft().red, lives_rect)
 
             # Track Mouse
@@ -126,8 +127,9 @@ def game(screen):
                 ball.draw()
 
                 if helper.check_collisions(mouse_xy, ball.position(), BOUNCE_RADIUS):
-                    life_count -= 1 if deduct_life else 0
                     deduct_life = True
+                    bouncy.remove(ball)
+                    life_count -= 1 if deduct_life else 0
                     game_active = False if life_count <= 0 else True
 
             # Draw the star
